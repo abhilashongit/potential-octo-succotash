@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vaultastic — Teams & Departments (Prototype)</title>
+
+  <style>
+    :root{
+      --bg0: #070b14;
+      --bg1: #0b1220;
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.09);
+      --text: rgba(255,255,255,.92);
+      --muted: rgba(255,255,255,.72);
+      --faint: rgba(255,255,255,.56);
+      --line: rgba(255,255,255,.12);
+      --shadow: 0 18px 60px rgba(0,0,0,.45);
+      --shadow2: 0 12px 34px rgba(0,0,0,.35);
+      --radius: 18px;
+      --radius2: 26px;
+      --max: 1120px;
+      --accent: #7dd3fc;  /* sky */
+      --accent2:#a78bfa;  /* violet */
+      --good:   #86efac;  /* green */
+      --warn:   #fbbf24;  /* amber */
+      --danger: #fb7185;  /* rose */
+      --font: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+
+    *{ box-sizing: border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--font);
+      color: var(--text);
+      background:
+        radial-gradient(900px 600px at 15% 8%, rgba(125,211,252,.18), transparent 60%),
+        radial-gradient(900px 600px at 85% 12%, rgba(167,139,250,.16), transparent 55%),
+        radial-gradient(700px 500px at 55% 92%, rgba(134,239,172,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0) 0%, var(--bg1) 55%, var(--bg0) 100%);
+      letter-spacing: .1px;
+    }
+
+    a{ color: inherit; text-decoration:none; }
+    .wrap{ max-width: var(--max); margin:0 auto; padding: 28px 18px 90px; }
+
+    /* ===== Topbar ===== */
+    .topbar{
+      position: sticky; top: 0;
+      z-index: 30;
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 14px;
+      padding: 14px 18px;
+      margin: 0 -18px 26px;
+      background: linear-gradient(180deg, rgba(11,18,32,.92), rgba(11,18,32,.72));
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+    }
+    .brand{ display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px; }
+    .logo{
+      width: 34px; height: 34px; border-radius: 10px;
+      background: linear-gradient(135deg, rgba(125,211,252,.95), rgba(167,139,250,.9));
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .nav{ display:flex; align-items:center; gap:10px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+    .nav a{ padding: 8px 10px; border-radius: 12px; border: 1px solid transparent; }
+    .nav a:hover{ border-color: rgba(255,255,255,.12); background: rgba(255,255,255,.04); color: var(--text); }
+
+    /* ===== Hero ===== */
+    .hero{
+      border-radius: var(--radius2);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.10);
+      box-shadow: var(--shadow);
+      padding: 28px 22px;
+      overflow:hidden;
+      position:relative;
+    }
+    .hero::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(520px 260px at 25% 20%, rgba(125,211,252,.20), transparent 60%),
+        radial-gradient(520px 260px at 75% 15%, rgba(167,139,250,.18), transparent 55%);
+      pointer-events:none;
+    }
+    .hero-inner{
+      position:relative;
+      display:grid;
+      grid-template-columns: 1.15fr .85fr;
+      gap: 18px;
+      align-items:start;
+    }
+    @media (max-width: 920px){ .hero-inner{ grid-template-columns: 1fr; } }
+
+    .kicker{
+      display:inline-flex; align-items:center; gap:10px;
+      color: var(--muted);
+      font-weight: 650;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+    }
+    .dot{
+      width: 9px; height: 9px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 6px rgba(125,211,252,.10);
+    }
+    h1{
+      margin: 14px 0 10px;
+      font-size: clamp(28px, 3.4vw, 46px);
+      line-height: 1.06;
+      letter-spacing: .2px;
+    }
+    .sub{
+      margin: 0 0 14px;
+      color: rgba(255,255,255,.82);
+      font-size: clamp(15px, 1.4vw, 18px);
+      line-height: 1.55;
+      max-width: 70ch;
+    }
+    .support{
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14.5px;
+      line-height: 1.75;
+      max-width: 86ch;
+    }
+
+    .hero-actions{
+      display:flex; gap:10px; flex-wrap:wrap;
+      margin-top: 18px;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:10px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor:pointer;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+      user-select:none;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.20); }
+    .btn.primary{
+      background: linear-gradient(135deg, rgba(125,211,252,.25), rgba(167,139,250,.22));
+      border-color: rgba(125,211,252,.35);
+    }
+    .btn.primary:hover{ border-color: rgba(125,211,252,.55); }
+    .btn.ghost{ background: rgba(255,255,255,.04); }
+    .btn.small{ padding: 8px 12px; border-radius: 12px; font-size: 12.8px; }
+
+    /* Panel */
+    .panel{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      padding: 16px 14px;
+      box-shadow: var(--shadow2);
+    }
+    .panel-title{
+      font-weight: 800;
+      font-size: 13px;
+      color: rgba(255,255,255,.84);
+      margin-bottom: 10px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+    }
+    .toggle{
+      display:flex; gap: 6px; flex-wrap:wrap;
+    }
+    .chip{
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: var(--muted);
+      font-weight: 750;
+      font-size: 12px;
+      cursor:pointer;
+      transition: background .12s ease, border-color .12s ease, color .12s ease;
+    }
+    .chip.active{
+      background: rgba(125,211,252,.14);
+      border-color: rgba(125,211,252,.32);
+      color: rgba(255,255,255,.90);
+    }
+    .facts{
+      display:grid; grid-template-columns: 1fr; gap:10px;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .fact{
+      padding: 10px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+    }
+    .fact b{ color: rgba(255,255,255,.88); font-weight: 850; }
+
+    /* ===== Sections ===== */
+    section{ margin-top: 26px; }
+    .section-head{
+      display:flex; align-items:flex-end; justify-content:space-between;
+      gap: 12px; flex-wrap: wrap;
+      margin: 22px 2px 12px;
+    }
+    .section-head h2{ margin:0; font-size: 18px; letter-spacing: .2px; }
+    .section-head p{ margin:0; color: var(--muted); max-width: 78ch; font-size: 13.5px; line-height: 1.6; }
+
+    /* ===== Table ===== */
+    .table-wrap{
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      overflow:hidden;
+      box-shadow: 0 14px 50px rgba(0,0,0,.35);
+    }
+    .scroll-hint{
+      display:none;
+      color: var(--muted);
+      font-size: 12.5px;
+      padding: 10px 14px 0;
+    }
+    .table-scroll{ overflow:auto; }
+    table{
+      width:100%;
+      border-collapse: collapse;
+      min-width: 860px;
+    }
+    thead th{
+      text-align:left;
+      font-size: 12px;
+      letter-spacing: .3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.74);
+      padding: 14px 16px;
+      background: rgba(255,255,255,.05);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    tbody td{
+      padding: 16px;
+      vertical-align: top;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      color: rgba(255,255,255,.86);
+      font-size: 13.5px;
+      line-height: 1.55;
+    }
+    tbody tr:hover td{ background: rgba(255,255,255,.03); }
+    td small{
+      display:block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+    @media (max-width: 980px){
+      .scroll-hint{ display:block; }
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      color: rgba(255,255,255,.86);
+      font-weight: 800;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .tag .pill{
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--good);
+      box-shadow: 0 0 0 6px rgba(134,239,172,.10);
+    }
+
+    /* ===== Stepper ===== */
+    .stepper{
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      box-shadow: var(--shadow2);
+      overflow:hidden;
+    }
+    .stepper-top{
+      display:flex; align-items:center; justify-content:space-between;
+      gap: 12px; flex-wrap: wrap;
+      padding: 14px 14px;
+      background: rgba(255,255,255,.04);
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .steps{
+      display:flex; align-items:center; gap: 10px; flex-wrap: wrap;
+    }
+    .step{
+      display:flex; align-items:center; gap: 10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+      color: var(--muted);
+      font-size: 12.5px;
+      font-weight: 750;
+    }
+    .step .n{
+      width: 22px; height: 22px;
+      border-radius: 999px;
+      display:flex; align-items:center; justify-content:center;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.85);
+      font-weight: 900;
+      font-size: 12px;
+    }
+    .step.active{
+      border-color: rgba(125,211,252,.28);
+      background: rgba(125,211,252,.10);
+      color: rgba(255,255,255,.88);
+    }
+    .step.active .n{
+      border-color: rgba(125,211,252,.35);
+      background: rgba(125,211,252,.18);
+    }
+    .step.done{
+      border-color: rgba(134,239,172,.28);
+      background: rgba(134,239,172,.08);
+      color: rgba(255,255,255,.86);
+    }
+    .step.done .n{
+      border-color: rgba(134,239,172,.35);
+      background: rgba(134,239,172,.16);
+    }
+
+    .stepper-body{
+      position: relative;
+      padding: 16px 14px 18px;
+    }
+
+    /* Wizard pages with smooth transitions */
+    .wizard{
+      position: relative;
+      min-height: 280px;
+    }
+    .page{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      transform: translateX(18px);
+      pointer-events:none;
+      transition: opacity .24s ease, transform .24s ease;
+    }
+    .page.active{
+      opacity:1;
+      transform: translateX(0);
+      pointer-events:auto;
+    }
+    .page.exit-left{
+      opacity:0;
+      transform: translateX(-18px);
+    }
+
+    @media (prefers-reduced-motion: reduce){
+      .page, .btn, .card, .chip { transition:none !important; }
+      .btn:hover, .card:hover { transform:none !important; }
+    }
+
+    /* Initiative cards */
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 980px){ .cards{ grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 560px){ .cards{ grid-template-columns: 1fr; } }
+
+    .card{
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.05);
+      padding: 14px 14px;
+      box-shadow: 0 14px 40px rgba(0,0,0,.28);
+      transition: transform .14s ease, background .14s ease, border-color .14s ease;
+      cursor:pointer;
+      user-select:none;
+      position:relative;
+      overflow:hidden;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,.18);
+      background: rgba(255,255,255,.07);
+    }
+    .card.selected{
+      border-color: rgba(125,211,252,.35);
+      background: rgba(125,211,252,.08);
+    }
+    .card h3{
+      margin: 8px 0 6px;
+      font-size: 14.6px;
+      letter-spacing: .1px;
+    }
+    .card p{
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 12.8px;
+      line-height: 1.55;
+    }
+    .icon{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      display:flex; align-items:center; justify-content:center;
+      font-weight: 900;
+      color: rgba(255,255,255,.85);
+    }
+    .meta{
+      display:flex; flex-wrap:wrap; gap: 8px;
+      margin-top: 6px;
+    }
+    .pill2{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+      color: rgba(255,255,255,.84);
+      font-weight: 800;
+      font-size: 11.5px;
+      white-space: nowrap;
+    }
+    .pill2 .dot2{
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent2);
+      box-shadow: 0 0 0 6px rgba(167,139,250,.10);
+    }
+
+    .wizard-actions{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+    .wizard-actions .left, .wizard-actions .right{
+      display:flex; gap: 10px; flex-wrap:wrap; align-items:center;
+    }
+    .helper{
+      color: var(--muted);
+      font-size: 12.8px;
+      line-height: 1.5;
+    }
+
+    /* Step 2 summary layout */
+    .summary{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 860px){ .summary{ grid-template-columns: 1fr; } }
+
+    .box{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.10);
+      padding: 12px 12px;
+    }
+    .box h4{
+      margin: 0 0 8px;
+      font-size: 13px;
+      letter-spacing: .2px;
+      color: rgba(255,255,255,.88);
+    }
+    .box ul{
+      margin: 0;
+      padding-left: 16px;
+      color: var(--muted);
+      font-size: 12.8px;
+      line-height: 1.6;
+    }
+
+    /* Footer */
+    footer{
+      margin-top: 34px;
+      color: rgba(255,255,255,.45);
+      font-size: 12px;
+      text-align:center;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>Vaultastic</div>
+      </div>
+      <div class="nav">
+        <a href="#top">Top</a>
+        <a href="#grid">Responsibility grid</a>
+        <a href="#wizard">Initiative stepper</a>
+      </div>
+    </div>
+
+    <header class="hero" id="top">
+      <div class="hero-inner">
+        <div>
+          <div class="kicker"><span class="dot"></span>Teams & Departments — BFSI Governance Fabric</div>
+
+          <h1 id="heroH1">Accountability Is Distributed. Governance Shouldn’t Be.</h1>
+
+          <p class="sub" id="heroH2">
+            Legal safeguards compliance. Risk oversees exposure. IT ensures resilience. Finance protects capital efficiency &amp; ensures valuable deployment.
+            Vaultastic reinforces each mandate through a unified information governance layer.
+          </p>
+
+          <p class="support">
+            In regulated BFSI environments, information accountability does not sit in one department. Regulatory compliance, operational risk mitigation, IT resilience, and capital discipline operate in parallel — yet data is often fragmented across platforms, user accounts, and storage systems, creating data uncertainty amidst disunity.
+            <br><br>
+            Vaultastic was designed as a cross-functional governance layer, ensuring audit readiness, supervisory visibility, lifecycle control, and cost optimization across mandates — with a unified single source of truth that makes governance easier said than done.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn primary" href="#wizard">Choose your initiative</a>
+            <a class="btn" href="#grid">View responsibility grid</a>
+          </div>
+        </div>
+
+        <aside class="panel" aria-label="Hook selector and impact">
+          <div class="panel-title">
+            <span>Hero hook</span>
+            <span style="color:rgba(255,255,255,.55);font-size:12px;">Toggle</span>
+          </div>
+
+          <div class="toggle" role="tablist" aria-label="Hero hook options">
+            <button class="chip active" id="hook1Btn" type="button">Hook #1</button>
+            <button class="chip" id="hook2Btn" type="button">Hook #2</button>
+          </div>
+
+          <div class="facts" id="impactBox">
+            <div class="fact"><b>Impact:</b> Executive, institutional framing. Positions Vaultastic as infrastructure-level governance — not a one-size-fits-all tool.</div>
+            <div class="fact"><b>Conveys:</b> Cross-functional mandate coverage (Legal + Risk + IT + Finance) in one governance fabric.</div>
+            <div class="fact"><b>Best for:</b> Boardroom tone, multi-stakeholder alignment, BFSI leadership audiences.</div>
+          </div>
+        </aside>
+      </div>
+    </header>
+
+    <section id="grid">
+      <div class="section-head">
+        <h2>Responsibility grid</h2>
+        <p>A quick map of how BFSI leadership teams evaluate governance — and what Vaultastic reinforces across mandates.</p>
+      </div>
+
+      <div class="table-wrap">
+        <div class="scroll-hint">Tip: scroll horizontally on smaller screens →</div>
+        <div class="table-scroll">
+          <table aria-label="Responsibility grid">
+            <thead>
+              <tr>
+                <th style="width: 24%;">If you champion…</th>
+                <th style="width: 38%;">You are accountable for…</th>
+                <th style="width: 38%;">What Vaultastic reinforces</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <span class="tag"><span class="pill"></span>Regulatory Compliance</span>
+                  <small>RBI / SEBI inspections • litigation defensibility • retention integrity</small>
+                </td>
+                <td>
+                  Inspection readiness and defensible evidence trails under supervisory scrutiny
+                  <small>Show-cause response readiness • audit timeliness • record integrity</small>
+                </td>
+                <td>
+                  Immutable cross-platform archival, audit-ready discovery, defensible record preservation
+                  <small>Single source of truth • controlled access • extraction readiness</small>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <span class="tag"><span class="pill"></span>Risk &amp; Supervisory Oversight</span>
+                  <small>Operational risk • ransomware resilience • reputational exposure</small>
+                </td>
+                <td>
+                  Supervisory visibility and traceability during incidents, investigations, and post-mortems
+                  <small>Recovery posture • audit trails • oversight continuity</small>
+                </td>
+                <td>
+                  Independent archival layer, centralized supervisory visibility, traceable extraction
+                  <small>Faster incident response • reduced exposure • clearer accountability</small>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <span class="tag"><span class="pill"></span>Technology Governance</span>
+                  <small>Cross-platform control • SaaS sprawl • deployment agility (TDTAT)</small>
+                </td>
+                <td>
+                  Governance architecture that scales without adding operational overhead
+                  <small>Integration confidence • lifecycle control • reliable retrieval</small>
+                </td>
+                <td>
+                  Automated ingestion, lifecycle automation, elastic storage tiers
+                  <small>Low-maintenance governance • scalable controls • reduced fragmentation</small>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <span class="tag"><span class="pill"></span>Capital &amp; Cost Discipline</span>
+                  <small>Storage inflation • subscription underutilization • compliance cost creep</small>
+                </td>
+                <td>
+                  Predictable governance economics while reducing penalty exposure and wastage
+                  <small>Cost rationalization • spend discipline • value realization</small>
+                </td>
+                <td>
+                  Right-sized storage tiers, lifecycle-driven optimization, directional cost efficiency
+                  <small>Optimization without compromise • lower long-term data carrying cost</small>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="wizard">
+      <div class="section-head">
+        <h2>Which initiative do you lead?</h2>
+        <p>Choose one. We’ll tailor the next view to the accountability you champion — within the broader governance fabric.</p>
+      </div>
+
+      <div class="stepper" aria-label="Initiative stepper">
+        <div class="stepper-top">
+          <div class="steps" aria-label="Steps">
+            <div class="step active" id="stepPill1"><span class="n">1</span>Choose initiative</div>
+            <div class="step" id="stepPill2"><span class="n">2</span>Preview what you’ll see</div>
+            <div class="step" id="stepPill3"><span class="n">3</span>Open tailored view</div>
+          </div>
+
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="btn small ghost" type="button" id="resetBtn">Reset</button>
+            <a class="btn small" href="#top">Back to top</a>
+          </div>
+        </div>
+
+        <div class="stepper-body">
+          <div class="wizard" role="region" aria-live="polite">
+
+            <!-- Page 1 -->
+            <div class="page active" id="page1">
+              <div class="helper">
+                Select the initiative you champion. This will shape the tailored view (copy, evaluation criteria, and magnets) in the next step.
+              </div>
+
+              <div class="cards" id="initiativeCards">
+                <!-- Cards injected by JS -->
+              </div>
+
+              <div class="wizard-actions">
+                <div class="left">
+                  <span class="helper" id="selectionHint">No initiative selected.</span>
+                </div>
+                <div class="right">
+                  <button class="btn primary" id="toStep2Btn" type="button" disabled>Continue</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Page 2 -->
+            <div class="page" id="page2">
+              <div class="helper">
+                Here’s the accountability framing we’ll use for your tailored view — so you can validate direction before going deeper.
+              </div>
+
+              <div class="summary">
+                <div class="box">
+                  <h4>Selected initiative</h4>
+                  <div id="selectedInitiativeLine" class="helper" style="color:rgba(255,255,255,.86); font-weight:800;"></div>
+                  <div class="meta" style="margin-top:10px;">
+                    <span class="pill2"><span class="dot2"></span><span id="selectedTrigger"></span></span>
+                    <span class="pill2"><span class="dot2"></span><span id="selectedOwner"></span></span>
+                  </div>
+                </div>
+
+                <div class="box">
+                  <h4>What you’ll see next (structure preview)</h4>
+                  <ul id="previewList"></ul>
+                </div>
+
+                <div class="box">
+                  <h4>What Vaultastic reinforces (high level)</h4>
+                  <ul id="reinforcesList"></ul>
+                </div>
+
+                <div class="box">
+                  <h4>Example lead magnet (for this initiative)</h4>
+                  <ul id="magnetList"></ul>
+                </div>
+              </div>
+
+              <div class="wizard-actions">
+                <div class="left">
+                  <button class="btn" id="backTo1Btn" type="button">Back</button>
+                </div>
+                <div class="right">
+                  <button class="btn primary" id="toStep3Btn" type="button">Open tailored view</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Page 3 -->
+            <div class="page" id="page3">
+              <div class="helper" style="margin-bottom:10px;">
+                Prototype: this is where the role/initiative-specific “mini-page” would open (same page section, modal, or dedicated subpage).
+              </div>
+
+              <div class="box">
+                <h4 id="tailoredTitle">Tailored view</h4>
+                <p class="helper" id="tailoredDesc" style="margin: 0; color: var(--muted);"></p>
+              </div>
+
+              <div class="summary" style="margin-top:12px;">
+                <div class="box">
+                  <h4>Evaluation checklist (example)</h4>
+                  <ul id="evalList"></ul>
+                </div>
+                <div class="box">
+                  <h4>Suggested CTA (soft)</h4>
+                  <ul id="ctaList"></ul>
+                </div>
+              </div>
+
+              <div class="wizard-actions">
+                <div class="left">
+                  <button class="btn" id="backTo2Btn" type="button">Back</button>
+                </div>
+                <div class="right">
+                  <button class="btn primary" type="button" onclick="alert('Prototype: This would route to the full role page / open a modal / jump to a section.');">Proceed</button>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- wizard -->
+        </div><!-- stepper-body -->
+      </div><!-- stepper -->
+    </section>
+
+    <footer>
+      Localhost prototype. Next iteration: replace placeholders with your role-page content blocks and real navigation behavior.
+    </footer>
+
+  </div>
+
+  <script>
+    // ===== Hero hooks =====
+    const hook1 = {
+      h1: "Accountability Is Distributed. Governance Shouldn’t Be.",
+      h2: "Legal safeguards compliance. Risk oversees exposure. IT ensures resilience. Finance protects capital efficiency & ensures valuable deployment. Vaultastic reinforces each mandate through a unified information governance layer.",
+      impacts: [
+        "<b>Impact:</b> Executive, institutional framing. Positions Vaultastic as infrastructure-level governance — not a one-size-fits-all tool.",
+        "<b>Conveys:</b> Cross-functional mandate coverage (Legal + Risk + IT + Finance) in one governance fabric.",
+        "<b>Best for:</b> Boardroom tone, multi-stakeholder alignment, BFSI leadership audiences."
+      ]
+    };
+
+    const hook2 = {
+      h1: "Built for Institutions That Cannot Afford Informational Failure.",
+      h2: "From RBI inspections to ransomware recovery, from supervisory oversight to cost discipline, Vaultastic strengthens governance across your leadership team.",
+      impacts: [
+        "<b>Impact:</b> Strong authority with explicit BFSI triggers. Signals: “we understand your world.”",
+        "<b>Conveys:</b> Readiness under scrutiny (inspection, oversight, recovery) while staying disciplined on cost.",
+        "<b>Best for:</b> CRO/CLO-led audiences, BFSI-first positioning, sharper industry-native hook."
+      ]
+    };
+
+    const heroH1 = document.getElementById("heroH1");
+    const heroH2 = document.getElementById("heroH2");
+    const impactBox = document.getElementById("impactBox");
+    const hook1Btn = document.getElementById("hook1Btn");
+    const hook2Btn = document.getElementById("hook2Btn");
+
+    function setHook(hook, activeBtn){
+      heroH1.textContent = hook.h1;
+      heroH2.textContent = hook.h2;
+      impactBox.innerHTML = hook.impacts.map(x => `<div class="fact">${x}</div>`).join("");
+      [hook1Btn, hook2Btn].forEach(b => b.classList.remove("active"));
+      activeBtn.classList.add("active");
+    }
+    hook1Btn.addEventListener("click", () => setHook(hook1, hook1Btn));
+    hook2Btn.addEventListener("click", () => setHook(hook2, hook2Btn));
+
+    // ===== Stepper data (Initiatives) =====
+    const initiatives = [
+      {
+        id: "reg-ready",
+        icon: "RR",
+        title: "Regulatory Readiness",
+        owner: "Legal & Compliance leadership",
+        trigger: "RBI / SEBI inspections",
+        desc: "Inspection readiness, defensible records, retention integrity across platforms.",
+        preview: [
+          "Hero banner aligned to regulatory accountability",
+          "What you evaluate (defensibility, retention integrity, extraction readiness)",
+          "What keeps you up (inspection timelines, missing records, inconsistency)",
+          "How Vaultastic reinforces (immutable archive, audit discovery, access controls)",
+          "Recommended artifacts (checklists, policy templates, simulation walkthrough)"
+        ],
+        reinforces: [
+          "Immutable cross-platform record preservation",
+          "Audit-ready discovery and extraction",
+          "Defensible retention integrity and access governance"
+        ],
+        magnets: [
+          "BFSI Compliance Readiness Checklist (RBI/SEBI-aligned)",
+          "Retention Policy Template + Audit Simulation Walkthrough"
+        ],
+        eval: [
+          "Can we produce defensible records under inspection timelines?",
+          "Are retention policies consistent and enforceable across platforms?",
+          "Can access and extraction be audited and controlled?"
+        ],
+        ctas: [
+          "Run a compliance readiness walkthrough",
+          "See an audit extraction demo (scenario-based)"
+        ]
+      },
+      {
+        id: "supervisory-oversight",
+        icon: "SO",
+        title: "Supervisory Oversight",
+        owner: "Risk & Oversight leadership",
+        trigger: "Operational risk + ransomware",
+        desc: "Supervisory visibility, incident traceability, resilience under ransomware pressure.",
+        preview: [
+          "Oversight narrative tied to operational risk exposure",
+          "Evaluation lens (traceability, supervisory visibility, recovery posture)",
+          "Risk scenarios (ransomware, ex-employee data, fragmented evidence trails)",
+          "How Vaultastic reinforces (independent archive, visibility, traceable extraction)",
+          "Recommended artifacts (exposure heatmap, resilience scorecard)"
+        ],
+        reinforces: [
+          "Independent archival layer for resilience",
+          "Centralized supervisory visibility",
+          "Traceable extraction for investigations and reviews"
+        ],
+        magnets: [
+          "Information Risk Exposure Heatmap (BFSI)",
+          "Ransomware Recovery Readiness Assessment"
+        ],
+        eval: [
+          "Can we trace and retrieve evidence quickly across systems and accounts?",
+          "Do we have an independent archive to reduce single-point-of-failure risk?",
+          "Is supervisory visibility clear during incidents and post-mortems?"
+        ],
+        ctas: [
+          "Run an incident traceability walkthrough",
+          "See supervisory visibility in action (demo)"
+        ]
+      },
+      {
+        id: "governance-agility",
+        icon: "GA",
+        title: "Governance Agility",
+        owner: "CIO / CTO leadership",
+        trigger: "SaaS sprawl + TDTAT",
+        desc: "Cross-platform control, low TDTAT, lifecycle automation, scalable governance.",
+        preview: [
+          "Technology governance framing (without architecture overload)",
+          "Evaluation lens (integration, deployment agility, lifecycle enforcement)",
+          "Operational constraints (multiple platforms, extraction friction, sprawl)",
+          "How Vaultastic reinforces (automated ingestion, lifecycle automation, elastic tiers)",
+          "Recommended artifacts (deployment playbook, integration kit)"
+        ],
+        reinforces: [
+          "Automated ingestion across platforms",
+          "Lifecycle automation and policy control",
+          "Elastic storage tiers for scalable governance"
+        ],
+        magnets: [
+          "Deployment Playbook (phased rollout)",
+          "Integration Readiness Kit (APIs + connectors overview)"
+        ],
+        eval: [
+          "How fast can we deploy (TDTAT) without disrupting existing systems?",
+          "Does governance scale across platforms without manual overhead?",
+          "Can lifecycle policies be enforced consistently?"
+        ],
+        ctas: [
+          "Schedule a technical deep-dive",
+          "Review deployment approach (phased plan)"
+        ]
+      },
+      {
+        id: "capital-discipline",
+        icon: "CD",
+        title: "Capital Discipline",
+        owner: "Finance leadership",
+        trigger: "Cost creep + wastage",
+        desc: "Cost discipline, storage rationalization, predictable compliance economics.",
+        preview: [
+          "Finance framing tied to compliance cost economics",
+          "Evaluation lens (predictability, optimization, penalty exposure)",
+          "Cost risks (storage inflation, underutilization, unmanaged retention)",
+          "How Vaultastic reinforces (tiering, lifecycle optimization, directional efficiency)",
+          "Recommended artifacts (ROI model, cost optimization calculator)"
+        ],
+        reinforces: [
+          "Right-sized storage with lifecycle optimization",
+          "Reduced compliance cost creep through policy-driven retention",
+          "Predictable governance economics (directional efficiency)"
+        ],
+        magnets: [
+          "Cost Optimization Calculator (directional savings)",
+          "Compliance Cost Avoidance Brief (penalty exposure lens)"
+        ],
+        eval: [
+          "Can we lower long-term data carrying cost without compromising governance?",
+          "Is spend predictable as data grows?",
+          "Does the approach reduce penalty exposure and hidden operational costs?"
+        ],
+        ctas: [
+          "Review a cost optimization model",
+          "Walk through a governance economics brief"
+        ]
+      }
+    ];
+
+    // ===== Stepper state + rendering =====
+    const initiativeCards = document.getElementById("initiativeCards");
+    const selectionHint = document.getElementById("selectionHint");
+    const toStep2Btn = document.getElementById("toStep2Btn");
+
+    const page1 = document.getElementById("page1");
+    const page2 = document.getElementById("page2");
+    const page3 = document.getElementById("page3");
+
+    const stepPill1 = document.getElementById("stepPill1");
+    const stepPill2 = document.getElementById("stepPill2");
+    const stepPill3 = document.getElementById("stepPill3");
+
+    const resetBtn = document.getElementById("resetBtn");
+    const backTo1Btn = document.getElementById("backTo1Btn");
+    const backTo2Btn = document.getElementById("backTo2Btn");
+    const toStep3Btn = document.getElementById("toStep3Btn");
+
+    const selectedInitiativeLine = document.getElementById("selectedInitiativeLine");
+    const selectedTrigger = document.getElementById("selectedTrigger");
+    const selectedOwner = document.getElementById("selectedOwner");
+    const previewList = document.getElementById("previewList");
+    const reinforcesList = document.getElementById("reinforcesList");
+    const magnetList = document.getElementById("magnetList");
+
+    const tailoredTitle = document.getElementById("tailoredTitle");
+    const tailoredDesc = document.getElementById("tailoredDesc");
+    const evalList = document.getElementById("evalList");
+    const ctaList = document.getElementById("ctaList");
+
+    let selectedId = null;
+    let currentStep = 1;
+
+    function renderCards(){
+      initiativeCards.innerHTML = initiatives.map(i => `
+        <div class="card" role="button" tabindex="0" data-id="${i.id}" aria-label="Select ${i.title}">
+          <div class="icon">${i.icon}</div>
+          <h3>${i.title}</h3>
+          <p>${i.desc}</p>
+          <div class="meta">
+            <span class="pill2"><span class="dot2"></span>${i.trigger}</span>
+            <span class="pill2"><span class="dot2"></span>${i.owner}</span>
+          </div>
+        </div>
+      `).join("");
+
+      // attach events
+      [...initiativeCards.querySelectorAll(".card")].forEach(card => {
+        const id = card.getAttribute("data-id");
+        const select = () => selectInitiative(id);
+
+        card.addEventListener("click", select);
+        card.addEventListener("keydown", (e) => {
+          if(e.key === "Enter" || e.key === " "){ e.preventDefault(); select(); }
+        });
+      });
+    }
+
+    function selectInitiative(id){
+      selectedId = id;
+      [...initiativeCards.querySelectorAll(".card")].forEach(c => c.classList.toggle("selected", c.getAttribute("data-id") === id));
+      const item = initiatives.find(x => x.id === id);
+      selectionHint.textContent = `Selected: ${item.title}`;
+      toStep2Btn.disabled = false;
+    }
+
+    function setStepPills(step){
+      const pills = [stepPill1, stepPill2, stepPill3];
+      pills.forEach((p, idx) => {
+        p.classList.remove("active","done");
+        const n = idx + 1;
+        if(n < step) p.classList.add("done");
+        if(n === step) p.classList.add("active");
+      });
+    }
+
+    function showPage(step){
+      currentStep = step;
+      setStepPills(step);
+
+      // page transitions (exit-left for the current active)
+      const pages = [page1, page2, page3];
+      pages.forEach(p => p.classList.remove("exit-left"));
+      const active = pages.find(p => p.classList.contains("active"));
+      if(active) active.classList.add("exit-left");
+
+      pages.forEach(p => p.classList.remove("active"));
+      if(step === 1) page1.classList.add("active");
+      if(step === 2) page2.classList.add("active");
+      if(step === 3) page3.classList.add("active");
+    }
+
+    function fillStep2(){
+      const item = initiatives.find(x => x.id === selectedId);
+      selectedInitiativeLine.textContent = item.title;
+      selectedTrigger.textContent = item.trigger;
+      selectedOwner.textContent = item.owner;
+
+      previewList.innerHTML = item.preview.map(x => `<li>${x}</li>`).join("");
+      reinforcesList.innerHTML = item.reinforces.map(x => `<li>${x}</li>`).join("");
+      magnetList.innerHTML = item.magnets.map(x => `<li>${x}</li>`).join("");
+    }
+
+    function fillStep3(){
+      const item = initiatives.find(x => x.id === selectedId);
+      tailoredTitle.textContent = `Tailored view — ${item.title}`;
+      tailoredDesc.textContent = `${item.desc} (Prototype placeholder for the full initiative page/section).`;
+
+      evalList.innerHTML = item.eval.map(x => `<li>${x}</li>`).join("");
+      ctaList.innerHTML = item.ctas.map(x => `<li>${x}</li>`).join("");
+    }
+
+    // Controls
+    toStep2Btn.addEventListener("click", () => {
+      if(!selectedId) return;
+      fillStep2();
+      showPage(2);
+    });
+
+    backTo1Btn.addEventListener("click", () => showPage(1));
+
+    toStep3Btn.addEventListener("click", () => {
+      fillStep3();
+      showPage(3);
+    });
+
+    backTo2Btn.addEventListener("click", () => showPage(2));
+
+    resetBtn.addEventListener("click", () => {
+      selectedId = null;
+      toStep2Btn.disabled = true;
+      selectionHint.textContent = "No initiative selected.";
+      [...initiativeCards.querySelectorAll(".card")].forEach(c => c.classList.remove("selected"));
+      showPage(1);
+    });
+
+    // Init
+    renderCards();
+    showPage(1);
+  </script>
+</body>
+</html>
